@@ -17,31 +17,46 @@ const canvas = document.getElementById('three-canvas');
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 renderer.setSize(w, h);
 
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshStandardMaterial({ color: 0xffff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
-scene.add(hemiLight);
-
-const  gradientLayer = getLayer({
-    hue: 0.6,
-    numSprites: 8,
-    opacity: 0.2,
-    radius: 10,
-    size: 24,
-    z: -10.5,
-})
-scene.add(gradientLayer);
-
-function animate() {
-    requestAnimationFrame(animate);
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.02;
-    renderer.render(scene, camera);
+function initScene({ geo }){
+    const geometry = geo;
+    geometry.center();
+    const material = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+    
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
+    scene.add(hemiLight);
+    
+    const  gradientLayer = getLayer({
+        hue: 0.6,
+        numSprites: 8,
+        opacity: 0.2,
+        radius: 10,
+        size: 24,
+        z: -10.5,
+    })
+    scene.add(gradientLayer);
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+    animate();
 }
-animate();
+
+const manager = new THREE.LoadingManager();
+const loader = new OBJLoader(manager);
+let sceneData = {};
+manager.onLoad = () => initScene(sceneData);
+loader.load("assets/astronaut.obj", (obj) => {
+    let geometry;
+    obj.traverse((child) => {
+        if (child.type === "Mesh") {
+            geometry = child.geometry;
+        }
+    });
+    sceneData.geo = geometry;
+})
 
 window.addEventListener("scroll", () => {
     const scrollPosY = (window.scrollY / document.body.clientHeight);
