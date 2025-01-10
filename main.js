@@ -5,6 +5,7 @@ import getStarfield from "./libs/getStarfield.js";
 
 const w = window.innerWidth;
 const h = window.innerHeight;
+let scrollPosY = 0; 
 
 const scene = new THREE.Scene();
 
@@ -43,6 +44,7 @@ function animate() {
 animate();
 
 window.addEventListener("scroll", () => {
+    const scrollPosY = (window.scrollY / document.body.clientHeight);
 })
 
 function handleResize() {
